@@ -4,6 +4,9 @@ const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 const mysql = require("mysql");
 
+console.log("✅ Módulo MySQL carregado com sucesso!");
+
+
 const transport = nodemailer.createTransport({
     host: "email-smtp.us-east-1.amazonaws.com",
     port: 587,
@@ -158,7 +161,7 @@ async function enviarEmail(nome, email, chamados) {
 }
 
 // Executar o script com o caminho do CSV
-const caminhoCSV = "./chamados.csv"; // Altere para o caminho correto
+const caminhoCSV = "./chamados.csv";
 processarCSV(caminhoCSV);
 
 
@@ -170,7 +173,7 @@ const db = mysql.createConnection({
     database: "glpidb"
 });
 
-// 📌 Consulta SQL correta
+
 const consultaSQL = `
     SELECT
     u.name AS nome_requerente,
