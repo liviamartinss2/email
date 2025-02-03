@@ -1,6 +1,8 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const nodemailer = require("nodemailer");
+const cron = require("node-cron");
+const mysql = require("mysql");
 
 const transport = nodemailer.createTransport({
     host: "email-smtp.us-east-1.amazonaws.com",
@@ -148,7 +150,7 @@ async function enviarEmail(nome, email, chamados) {
     };
 
     try {
-        await transport.sendMail(mailOptions);
+        //await transport.sendMail(mailOptions);
         console.log(`✔ E-mail enviado para ${email} com ${chamados.length} chamados.`);
     } catch (error) {
         console.error(`❌ Erro ao enviar e-mail para ${email}:`, error);
@@ -159,3 +161,71 @@ async function enviarEmail(nome, email, chamados) {
 const caminhoCSV = "./chamados.csv"; // Altere para o caminho correto
 processarCSV(caminhoCSV);
 
+
+const db = mysql.createConnection({
+    host: "172.17.0.8",
+    port: "3309",
+    user: "tifan",
+    password: "F4n@2025GlU$b",
+    database: "glpidb"
+});
+
+// 📌 Consulta SQL correta
+const consultaSQL = `
+    SELECT
+    u.name AS nome_requerente,
+    e.email AS email_requerente,	
+    t.id AS numero_chamado,
+    t.closedate AS data_fechamento,
+    DATEDIFF(CURDATE(), closedate) AS dias_avaliacao,
+    form.id as ID_FORMULARIO
+FROM
+    glpidb.glpi_tickets AS t
+    JOIN glpidb.glpi_users AS u ON t.users_id_recipient = u.id
+    JOIN glpidb.glpi_useremails e ON e.users_id = u.id
+    JOIN glpidb.glpi_ticketsatisfactions s ON s.tickets_id = t.id
+    LEFT JOIN glpi_plugin_formcreator_issues form ON t.id = form.items_id
+WHERE
+    t.status = 6
+    AND t.entities_id = 3
+    and DATEDIFF(CURDATE(), closedate) <= 7
+    AND s.satisfaction  IS NULL
+    AND t.solvedate IS NOT NULL
+ORDER BY u.name, e.email
+`;
+
+// 🔹 Função para atualizar o banco e gerar o CSV
+function atualizarBanco() {
+    console.log("⏳ Atualizando banco de dados...");
+
+    db.query(consultaSQL, (err, resultados) => {
+        if (err) {
+            console.error("❌ Erro ao buscar dados do banco:", err);
+            return;
+        }
+
+        // Gerar um CSV com os dados do banco
+        const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao"];
+        resultados.forEach(row => {
+            csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao}`);
+        });
+
+        fs.writeFileSync("./chamados.csv", csvData.join("\n"));
+        console.log("✔ Banco atualizado e CSV gerado.");
+    });
+}
+
+
+// 🔹 Agendador de tarefas
+cron.schedule("0 6 * * *", () => {
+    console.log("⏳ Executando atualização do banco de dados às 6h...");
+    atualizarBanco();
+});
+
+cron.schedule("0 7 * * *", () => {
+    console.log("⏳ Enviando e-mails às 7h...");
+    processarCSV();
+});
+
+// 🔹 Iniciando o sistema
+console.log("🚀 Sistema de automação iniciado...");
