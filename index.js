@@ -4,8 +4,6 @@ const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 const mysql = require("mysql");
 
-console.log("✅ Módulo MySQL carregado com sucesso!");
-
 
 const transport = nodemailer.createTransport({
     host: "email-smtp.us-east-1.amazonaws.com",
@@ -17,7 +15,7 @@ const transport = nodemailer.createTransport({
     },
 });
 
-// Função para processar o CSV e agrupar os chamados por e-mail
+
 function processarCSV(caminhoCSV) {
     const usuarios = {}; // Objeto para agrupar chamados por e-mail
 
@@ -51,7 +49,7 @@ function processarCSV(caminhoCSV) {
 // Função para enviar um único e-mail listando todos os chamados
 async function enviarEmail(nome, email, chamados) {
     const tabelaChamados = chamados.map(({ numeroChamado, dataFechamento, diasAvaliacao, idForm }) => {
-        const linkChamado = `https://chamados.grupofan.com/plugins/formcreator/front/issue.form.php?id=${idForm}&tickets_id=${numeroChamado}`; // Altere conforme necessário
+        const linkChamado = `https://chamados.grupofan.com/front/ticket.form.php?id=${numeroChamado}`;
 
         return `
         <tr>
@@ -153,7 +151,7 @@ async function enviarEmail(nome, email, chamados) {
     };
 
     try {
-        //await transport.sendMail(mailOptions);
+       await transport.sendMail(mailOptions);
         console.log(`✔ E-mail enviado para ${email} com ${chamados.length} chamados.`);
     } catch (error) {
         console.error(`❌ Erro ao enviar e-mail para ${email}:`, error);
@@ -197,7 +195,6 @@ WHERE
 ORDER BY u.name, e.email
 `;
 
-// 🔹 Função para atualizar o banco e gerar o CSV
 function atualizarBanco() {
     console.log("⏳ Atualizando banco de dados...");
 
@@ -207,7 +204,7 @@ function atualizarBanco() {
             return;
         }
 
-        // Gerar um CSV com os dados do banco
+        
         const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao"];
         resultados.forEach(row => {
             csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao}`);
@@ -218,17 +215,19 @@ function atualizarBanco() {
     });
 }
 
+atualizarBanco();
+processarCSV(caminhoCSV);
 
-// 🔹 Agendador de tarefas
+
+
 cron.schedule("0 6 * * *", () => {
-    console.log("⏳ Executando atualização do banco de dados às 6h...");
+    console.log(" Executando atualização do banco de dados às 6h...");
     atualizarBanco();
 });
 
 cron.schedule("0 7 * * *", () => {
-    console.log("⏳ Enviando e-mails às 7h...");
+    console.log(" Enviando e-mails às 7h...");
     processarCSV();
 });
 
-// 🔹 Iniciando o sistema
-console.log("🚀 Sistema de automação iniciado...");
+console.log("Sistema de automação iniciado...");
