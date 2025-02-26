@@ -17,7 +17,7 @@ const transport = nodemailer.createTransport({
 
 
 function processarCSV(caminhoCSV) {
-    const usuarios = {}; // Objeto para agrupar chamados por e-mail
+    const usuarios = {};
 
     fs.createReadStream(caminhoCSV)
         .pipe(csv())
@@ -87,7 +87,7 @@ async function enviarEmail(nome, email, chamados) {
                                 <td align="left" style="font-size: 16px; color: #333;">
                                     <p>Olá, <strong>${nome}</strong>,</p>
                                     <p>Esperamos que esteja tudo bem com você! 😊</p>
-                                    <p>Os seguintes chamados foram encerrados recentemente:</p>
+                                    <p>Os seguintes chamados foram <strong>Fechados recentemente:</strong></p>
                                 </td>
                             </tr>
 
@@ -178,21 +178,21 @@ const consultaSQL = `
     e.email AS email_requerente,	
     t.id AS numero_chamado,
     t.closedate AS data_fechamento,
-    DATEDIFF(CURDATE(), closedate) AS dias_avaliacao,
+    GREATEST(0, 7 - DATEDIFF(CURDATE(), t.closedate)) AS dias_avaliacao,
     form.id as ID_FORMULARIO
-FROM
+    FROM
     glpidb.glpi_tickets AS t
     JOIN glpidb.glpi_users AS u ON t.users_id_recipient = u.id
     JOIN glpidb.glpi_useremails e ON e.users_id = u.id
     JOIN glpidb.glpi_ticketsatisfactions s ON s.tickets_id = t.id
     LEFT JOIN glpi_plugin_formcreator_issues form ON t.id = form.items_id
-WHERE
+    WHERE
     t.status = 6
     AND t.entities_id = 3
     and DATEDIFF(CURDATE(), closedate) <= 7
     AND s.satisfaction  IS NULL
     AND t.solvedate IS NOT NULL
-ORDER BY u.name, e.email
+    ORDER BY u.name, e.email
 `;
 
 function atualizarBanco() {
@@ -205,9 +205,9 @@ function atualizarBanco() {
         }
 
         
-        const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao"];
+        const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao,ID_FORMULARIO"];
         resultados.forEach(row => {
-            csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao}`);
+            csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao},${row.ID_FORMULARIO}`);
         });
 
         fs.writeFileSync("./chamados.csv", csvData.join("\n"));
@@ -215,19 +215,19 @@ function atualizarBanco() {
     });
 }
 
-atualizarBanco();
+// atualizarBanco(consultaSQL);
 processarCSV(caminhoCSV);
 
 
 
-cron.schedule("0 6 * * *", () => {
-    console.log(" Executando atualização do banco de dados às 6h...");
-    atualizarBanco();
+cron.schedule("0 7 * * *", () => {
+    console.log(" Executando atualização do banco de dados às 7h...");
+    atualizarBanco(consultaSQL);
 });
 
-cron.schedule("0 7 * * *", () => {
-    console.log(" Enviando e-mails às 7h...");
-    processarCSV();
+cron.schedule("0 8 * * *", () => {
+    console.log(" Enviando e-mails às 8h...");
+    processarCSV(caminhoCSV);
 });
 
 console.log("Sistema de automação iniciado...");
