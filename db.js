@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
 });
  
 
-// Conectar ao banco
+
 connection.connect((err) => {
     if (err) {
         console.error('Erro ao conectar ao MariaDB:', err);
