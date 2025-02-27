@@ -5,6 +5,60 @@ const cron = require("node-cron");
 const mysql = require("mysql");
 
 
+const db = mysql.createConnection({
+    host: "172.17.0.8",
+    port: "3309",
+    user: "tifan",
+    password: "F4n@2025GlU$b",
+    database: "glpidb"
+});
+
+
+const consultaSQL = `
+    SELECT
+    u.name AS nome_requerente,
+    e.email AS email_requerente,	
+    t.id AS numero_chamado,
+    t.closedate AS data_fechamento,
+    GREATEST(0, 7 - DATEDIFF(CURDATE(), t.closedate)) AS dias_avaliacao,
+    form.id as ID_FORMULARIO
+    FROM
+    glpidb.glpi_tickets AS t
+    JOIN glpidb.glpi_users AS u ON t.users_id_recipient = u.id
+    JOIN glpidb.glpi_useremails e ON e.users_id = u.id
+    JOIN glpidb.glpi_ticketsatisfactions s ON s.tickets_id = t.id
+    LEFT JOIN glpi_plugin_formcreator_issues form ON t.id = form.items_id
+    WHERE
+    t.status = 6
+    AND t.entities_id = 3
+    and DATEDIFF(CURDATE(), closedate) <= 7
+    AND s.satisfaction  IS NULL
+    AND t.solvedate IS NOT NULL
+    ORDER BY u.name, e.email
+`;
+
+function atualizarBanco() {
+    console.log("⏳ Atualizando banco de dados...");
+
+    db.query(consultaSQL, (err, resultados) => {
+        if (err) {
+            console.error("❌ Erro ao buscar dados do banco:", err);
+            return;
+        }
+
+        
+        const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao,ID_FORMULARIO"];
+        resultados.forEach(row => {
+            csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao},${row.ID_FORMULARIO}`);
+        });
+
+        fs.writeFileSync("./chamados.csv", csvData.join("\n"));
+        console.log("✔ Banco atualizado e CSV gerado.");
+    });
+}
+
+
+
 const transport = nodemailer.createTransport({
     host: "email-smtp.us-east-1.amazonaws.com",
     port: 587,
@@ -158,64 +212,9 @@ async function enviarEmail(nome, email, chamados) {
     }
 }
 
-// Executar o script com o caminho do CSV
-const caminhoCSV = "./chamados.csv";
-processarCSV(caminhoCSV);
-
-
-const db = mysql.createConnection({
-    host: "172.17.0.8",
-    port: "3309",
-    user: "tifan",
-    password: "F4n@2025GlU$b",
-    database: "glpidb"
-});
-
-
-const consultaSQL = `
-    SELECT
-    u.name AS nome_requerente,
-    e.email AS email_requerente,	
-    t.id AS numero_chamado,
-    t.closedate AS data_fechamento,
-    GREATEST(0, 7 - DATEDIFF(CURDATE(), t.closedate)) AS dias_avaliacao,
-    form.id as ID_FORMULARIO
-    FROM
-    glpidb.glpi_tickets AS t
-    JOIN glpidb.glpi_users AS u ON t.users_id_recipient = u.id
-    JOIN glpidb.glpi_useremails e ON e.users_id = u.id
-    JOIN glpidb.glpi_ticketsatisfactions s ON s.tickets_id = t.id
-    LEFT JOIN glpi_plugin_formcreator_issues form ON t.id = form.items_id
-    WHERE
-    t.status = 6
-    AND t.entities_id = 3
-    and DATEDIFF(CURDATE(), closedate) <= 7
-    AND s.satisfaction  IS NULL
-    AND t.solvedate IS NOT NULL
-    ORDER BY u.name, e.email
-`;
-
-function atualizarBanco() {
-    console.log("⏳ Atualizando banco de dados...");
-
-    db.query(consultaSQL, (err, resultados) => {
-        if (err) {
-            console.error("❌ Erro ao buscar dados do banco:", err);
-            return;
-        }
-
-        
-        const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao,ID_FORMULARIO"];
-        resultados.forEach(row => {
-            csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao},${row.ID_FORMULARIO}`);
-        });
-
-        fs.writeFileSync("./chamados.csv", csvData.join("\n"));
-        console.log("✔ Banco atualizado e CSV gerado.");
-    });
-}
-
 //atualizarBanco(consultaSQL);
+// Script com o caminho do CSV
+const caminhoCSV = "./chamados.csv";
 //processarCSV(caminhoCSV);
 
 
