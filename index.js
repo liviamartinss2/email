@@ -16,7 +16,7 @@ const transport = nodemailer.createTransport({
 });
 
 
-function processarCSV(caminhoCSV) {
+async function processarCSV(caminhoCSV) {
     const usuarios = {};
 
     fs.createReadStream(caminhoCSV)
@@ -35,13 +35,13 @@ function processarCSV(caminhoCSV) {
 
             usuarios[email].chamados.push({ numeroChamado, dataFechamento, diasAvaliacao, idForm });
         })
-        .on("end", () => {
+        .on("end", async () => {
             console.log("✔ Processamento do CSV concluído.");
 
             // Enviar um único e-mail para cada usuário
             for (const email in usuarios) {
                 const { nome, chamados } = usuarios[email];
-                enviarEmail(nome, email, chamados);
+                await enviarEmail(nome, email, chamados);
             }
         });
 }
@@ -229,5 +229,6 @@ cron.schedule("0 8 * * *", () => {
     console.log(" Enviando e-mails às 8h...");
     processarCSV(caminhoCSV);
 });
+// , { scheduled: true, immediate: true });
 
 console.log("Sistema de automação iniciado...");

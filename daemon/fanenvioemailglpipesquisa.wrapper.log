@@ -2,3 +2,11 @@
 2025-02-19 10:29:25 - Started 5108
 2025-02-19 10:33:09 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\livia.martins\email\node_modules\node-windows\lib\wrapper.js --file C:\Users\livia.martins\email\index.js --scriptoptions= --log "FAN - ENVIO EMAIL GLPI PESQUISA wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
 2025-02-19 10:33:09 - Started 15536
+2025-02-27 08:54:52 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\livia.martins\email\node_modules\node-windows\lib\wrapper.js --file C:\Users\livia.martins\email\index.js --scriptoptions= --log "FAN - ENVIO EMAIL GLPI PESQUISA wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-02-27 08:54:52 - Started 25508
+2025-02-27 09:15:43 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\livia.martins\email\node_modules\node-windows\lib\wrapper.js --file C:\Users\livia.martins\email\index.js --scriptoptions= --log "FAN - ENVIO EMAIL GLPI PESQUISA wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-02-27 09:15:43 - Started 17224
+2025-02-27 09:16:51 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\livia.martins\email\node_modules\node-windows\lib\wrapper.js --file C:\Users\livia.martins\email\index.js --scriptoptions= --log "FAN - ENVIO EMAIL GLPI PESQUISA wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-02-27 09:16:51 - Started 12004
+2025-02-27 09:17:23 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\livia.martins\email\node_modules\node-windows\lib\wrapper.js --file C:\Users\livia.martins\email\index.js --scriptoptions= --log "FAN - ENVIO EMAIL GLPI PESQUISA wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-02-27 09:17:23 - Started 8444
