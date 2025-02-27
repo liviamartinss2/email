@@ -215,8 +215,8 @@ function atualizarBanco() {
     });
 }
 
-atualizarBanco(consultaSQL);
-processarCSV(caminhoCSV);
+//atualizarBanco(consultaSQL);
+//processarCSV(caminhoCSV);
 
 
 
