@@ -212,10 +212,10 @@ async function enviarEmail(nome, email, chamados) {
     }
 }
 
-//atualizarBanco(consultaSQL);
+// atualizarBanco(consultaSQL);
 // Script com o caminho do CSV
 const caminhoCSV = "./chamados.csv";
-//processarCSV(caminhoCSV);
+// processarCSV(caminhoCSV);
 
 
 
