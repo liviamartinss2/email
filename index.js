@@ -104,11 +104,21 @@ function processarCSV(caminhoCSV) {
 async function enviarEmail(nome, email, chamados) {
     const tabelaChamados = chamados.map(({ numeroChamado, dataFechamento, diasAvaliacao, idForm }) => {
         const linkChamado = `https://chamados.grupofan.com/front/ticket.form.php?id=${numeroChamado}`;
-
+    
+        // Converter data para formato desejado
+        const dataObj = new Date(dataFechamento);
+        const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+            weekday: 'short', // Abreviação do dia da semana
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).format(dataObj);
+        
+    
         return `
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">#${numeroChamado}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${dataFechamento}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${dataFormatada}</td>
             <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${diasAvaliacao}</td>
             <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
                 <a href="${linkChamado}" target="_blank" style="text-decoration: none; color: #a4262c; padding: 5px 10px; display: inline-block;">Acessar</a>
@@ -116,6 +126,7 @@ async function enviarEmail(nome, email, chamados) {
         </tr>
         `;
     }).join("");
+    
 
     const mailOptions = {
         from: '"Equipe de TI - Grupo Fan" <livia.martins@grupofan.com>',
@@ -129,25 +140,36 @@ async function enviarEmail(nome, email, chamados) {
             <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
             <title>Email de Feedback</title>
         </head>
-        <body style="margin: 0; padding: 0; font-family: 'Montserrat', Arial, sans-serif; background-color: #ffc5c5;">
+        <body style="margin: 0; padding: 0px; font-family: 'Montserrat', Arial, sans-serif; background-color: #ffc5c5;">
 
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffc5c5">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#363234">
                 <tr>
                     <td align="center">
-                        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#f4f4f4" style="margin: 30px; padding: 20px; border-radius: 8px;">
+                        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#f4f4f4" style="margin: 30px; 
+           padding: 0px; 
+           border-radius: 8px;
+           backdrop-filter: blur(10px);
+           background: #F9F5F4;
+           box-shadow: 0 7px 16px rgba(0, 0, 0, 0.4); 
+           border: 0px solid rgba(255, 255, 255, 0.3);">
+
+            <!-- Imagem no topo -->
+    <tr>
+        <td style="padding: 0;">
+            <img src="https://chamados.grupofan.com/pics/avaliacaochamados.jpg" alt="Banner" width="600" style="paddin: 0px; display: block; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+        </td>
+    </tr>
                             
                             <!-- Saudação -->
                             <tr>
-                                <td align="left" style="font-size: 16px; color: #333;">
+                                <td align="left" style="font-size: 16px; color: #333; padding: 25px; padding-top: 10px; padding-bottom: 0px;">
                                     <p>Olá, <strong>${nome}</strong>,</p>
                                     <p>Esperamos que esteja tudo bem com você! 😊</p>
                                     <p>Os seguintes chamados foram <strong>Fechados recentemente:</strong></p>
                                 </td>
                             </tr>
-
-                            <!-- Tabela de Chamados -->
                             <tr>
-                                <td align="center">
+                                <td align="center" style="padding: 25px; padding-top: 0px; padding-bottom: 0px;">
                                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="1" style="border-collapse: collapse; margin: 20px 0;">
                                         <thead>
                                             <tr style="background-color: #a4262c; color: #fff;">
@@ -166,21 +188,20 @@ async function enviarEmail(nome, email, chamados) {
 
                             <!-- Como avaliar -->
                             <tr>
-                                <td align="left" style="font-size: 16px; color: #333;">
+                                <td align="left" style="font-size: 16px; color: #333; padding: 25px; padding-top: 0px;">
                                     <p>Poderia nos dar um feedback sobre o atendimento?</p>
                                     <p>Para avaliar, é bem simples:</p>
-                                    <ul style="margin: 10px 0; padding-left: 20px; color: #555;">
-                                        <li>⭐ Clique em <strong>Meus chamados</strong>, e escolha o chamado que deseja avaliar</li>
-                                        <li>⭐ Clique na aba <strong>Satisfação</strong></li>
-                                        <li>⭐ Escolha a quantidade de estrelas de acordo com o atendimento recebido, e escreva sua mensagem.</li>
-                                    </ul>
+                                        <p style="font-size: 15px; color: #333; padding-left: 10px;">⭐ Clique em <strong>Meus chamados</strong>, e escolha o chamado para avaliar</p>
+                                        <p style="font-size: 15px; color: #333; padding-left: 10px;">⭐ Clique na aba <strong>Satisfação</strong></p>
+                                        <p style="font-size: 15px; color: #333; padding-left: 10px;">⭐ Escolha a quantidade de estrelas de acordo com o atendimento recebido, e escreva sua mensagem.</p>
+                                
                                     <p>Basta alguns segundos, mas faz toda a diferença para nós! ❤️</p>
                                 </td>
                             </tr>
 
                             <!-- Assinatura -->
                             <tr>
-                                <td align="left" style="font-size: 16px; color: #333;">
+                                <td align="left" style="font-size: 16px; color: #333; padding: 25px; padding-top: 0px;">
                                     <p>Obrigado pela atenção!</p>
                                     <p>Atenciosamente,</p>
                                     <p><strong>Equipe de TI</strong></p>
@@ -189,7 +210,7 @@ async function enviarEmail(nome, email, chamados) {
 
                             <!-- Logo -->
                             <tr>
-                                <td align="center" style="padding-top: 20px;">
+                                <td align="center" style="padding-top: 0px;">
                                     <img src="https://lirp.cdn-website.com/c662d39f/dms3rep/multi/opt/GRUPO+FAN-8e48a3b5-640w.png" alt="Logo da Empresa" width="150" style="display: block;"/>
                                 </td>
                             </tr>
@@ -212,10 +233,10 @@ async function enviarEmail(nome, email, chamados) {
     }
 }
 
-// atualizarBanco(consultaSQL);
+ //atualizarBanco(consultaSQL);
 // Script com o caminho do CSV
 const caminhoCSV = "./chamados.csv";
-// processarCSV(caminhoCSV);
+//processarCSV(caminhoCSV);
 
 
 
