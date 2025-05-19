@@ -67,6 +67,9 @@ const transport = nodemailer.createTransport({
         user: "AKIA3FRRIWSFZVI7I4N5",
         pass: "BNEqEPR2KrPh8+F9wBjjJTARFd6daOF23DPofi88OM3/",
     },
+    tls: {
+        rejectUnauthorized: false
+      }
 });
 
 
@@ -129,7 +132,7 @@ async function enviarEmail(nome, email, chamados) {
     
 
     const mailOptions = {
-        from: '"Equipe de TI - Grupo Fan" <livia.martins@grupofan.com>',
+        from: '"Equipe de TI - Grupo Fan" <sistemas@grupofan.com>',
         to: email,
         subject: `🚨 Avaliação dos seus chamados`,
         html: `
@@ -233,11 +236,10 @@ async function enviarEmail(nome, email, chamados) {
     }
 }
 
- //atualizarBanco(consultaSQL);
+ atualizarBanco(consultaSQL);
 // Script com o caminho do CSV
 const caminhoCSV = "./chamados.csv";
 //processarCSV(caminhoCSV);
-
 
 
 cron.schedule("0 7 * * *", () => {
