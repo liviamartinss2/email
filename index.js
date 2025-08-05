@@ -13,7 +13,6 @@ const db = mysql.createConnection({
     database: "glpidb"
 });
 
-
 const consultaSQL = `
     SELECT
     u.name AS nome_requerente,
@@ -45,8 +44,7 @@ function atualizarBanco() {
             console.error("❌ Erro ao buscar dados do banco:", err);
             return;
         }
-
-        
+       
         const csvData = ["nome_requerente,email_requerente,numero_chamado,data_fechamento,dias_avaliacao,ID_FORMULARIO"];
         resultados.forEach(row => {
             csvData.push(`${row.nome_requerente},${row.email_requerente},${row.numero_chamado},${row.data_fechamento},${row.dias_avaliacao},${row.ID_FORMULARIO}`);
@@ -56,8 +54,6 @@ function atualizarBanco() {
         console.log("✔ Banco atualizado e CSV gerado.");
     });
 }
-
-
 
 const transport = nodemailer.createTransport({
     host: "email-smtp.us-east-1.amazonaws.com",
@@ -129,12 +125,13 @@ async function enviarEmail(nome, email, chamados) {
         </tr>
         `;
     }).join("");
-    
 
+    
+    const primeiroNome = nome.split('.')[0];
     const mailOptions = {
         from: '"Equipe de TI - Grupo Fan" <sistemas@grupofan.com>',
         to: email,
-        subject: `🚨 Avaliação dos seus chamados`,
+        subject: `🚨 Ei ${primeiroNome}, você tem chamados aguardando avaliação!`,
         html: `
         <!DOCTYPE html>
         <html>
@@ -155,19 +152,18 @@ async function enviarEmail(nome, email, chamados) {
            background: #F9F5F4;
            box-shadow: 0 7px 16px rgba(0, 0, 0, 0.4); 
            border: 0px solid rgba(255, 255, 255, 0.3);">
-
             <!-- Imagem no topo -->
     <tr>
         <td style="padding: 0;">
             <img src="https://chamados.grupofan.com/pics/avaliacaochamados.jpg" alt="Banner" width="600" style="paddin: 0px; display: block; border-top-left-radius: 8px; border-top-right-radius: 8px;">
         </td>
     </tr>
-                            
                             <!-- Saudação -->
                             <tr>
                                 <td align="left" style="font-size: 16px; color: #333; padding: 25px; padding-top: 10px; padding-bottom: 0px;">
-                                    <p>Olá, <strong>${nome}</strong>,</p>
-                                    <p>Esperamos que esteja tudo bem com você! 😊</p>
+                                    <p>Olá, <strong>${primeiroNome}</strong> ❤️</p>
+                                    <p><strong>A sua avaliação é muito importante</strong> para que possamos aprimorar ainda mais nosso suporte. 
+                                    Ela também nos ajuda diretamente a manter um serviço de qualidade para você.</p>
                                     <p>Os seguintes chamados foram <strong>Fechados recentemente:</strong></p>
                                 </td>
                             </tr>
@@ -192,7 +188,6 @@ async function enviarEmail(nome, email, chamados) {
                             <!-- Como avaliar -->
                             <tr>
                                 <td align="left" style="font-size: 16px; color: #333; padding: 25px; padding-top: 0px;">
-                                    <p>Poderia nos dar um feedback sobre o atendimento?</p>
                                     <p>Para avaliar, é bem simples:</p>
                                         <p style="font-size: 15px; color: #333; padding-left: 10px;">⭐ Clique em <strong>Meus chamados</strong>, e escolha o chamado para avaliar</p>
                                         <p style="font-size: 15px; color: #333; padding-left: 10px;">⭐ Clique na aba <strong>Satisfação</strong></p>
@@ -236,7 +231,7 @@ async function enviarEmail(nome, email, chamados) {
     }
 }
 
- atualizarBanco(consultaSQL);
+atualizarBanco(consultaSQL);
 // Script com o caminho do CSV
 const caminhoCSV = "./chamados.csv";
 //processarCSV(caminhoCSV);
